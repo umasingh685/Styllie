@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>SuryaStyllie</title>
+
+    <link rel="icon" href="logo.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f4f4f4
+        }
+
+        /* WELCOME */
+        #welcome {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            color: white;
+        }
+
+        .welcome-logo {
+            width: 150px;
+            border-radius: 50%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* NAVBAR */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background: black;
+            color: white;
+            padding: 10px;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex
+        }
+
+        nav ul li {
+            margin: 10px;
+            cursor: pointer
+        }
+
+        /* SECTIONS */
+        section {
+            display: none;
+            padding: 30px
+        }
+
+        .active {
+            display: block
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 900px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 10px 20px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        /* CAMERA */
+        video {
+            border: 3px solid black
+        }
+
+        /* 3D */
+        #avatar {
+            width: 400px;
+            height: 400px;
+            margin: auto
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- WELCOME -->
+    <div id="welcome">
+        <img src="logo.png" class="welcome-logo">
+        <h1>WELCOME TO SURYASTYLLIE</h1>
+        <p>AI Powered Beauty & Fashion Platform</p>
+        <button onclick="enterSite()">Enter Website</button>
+    </div>
+
+    <div id="site" style="display:none">
+
+        <nav>
+            <div class="logo">
+                <img src="logo.png">
+                <span>SuryaStyllie</span>
+            </div>
+
+            <ul>
+                <li onclick="showPage('home')">Home</li>
+                <li onclick="showPage('about')">About</li>
+                <li onclick="showPage('services')">Services</li>
+                <li onclick="showPage('contact')">Contact</li>
+                <li onclick="showPage('profile')">Profile</li>
+                <li onclick="showPage('login')">Login</li>
+                <li onclick="showPage('register')">Register</li>
+            </ul>
+        </nav>
+
+        <!-- HOME -->
+        <section id="home" class="active">
+            <div class="card">
+                <h2>Modern Fashion & Smart Styling</h2>
+                <p>
+                    Fashion is not just about clothes, it is about confidence, personality and identity.
+                    SuryaStyllie uses Artificial Intelligence to analyze your face and suggest the best
+                    makeup, hairstyle and styling based on your look and occasion.
+                </p>
+            </div>
+        </section>
+
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="card">
+                <h2>About SuryaStyllie</h2>
+                <p>
+                    SuryaStyllie is an AI-based styling platform designed for both boys and girls.
+                    It helps users find the best hairstyle, makeup and fashion style based on their face shape,
+                    skin tone and needs like wedding, party, interview or daily life.
+                </p>
+            </div>
+        </section>
+
+        <!-- SERVICES -->
+        <section id="services">
+
+            <div class="card">
+                <h2>AI Face Scan</h2>
+                <button onclick="startCamera()">Start Camera</button>
+                <br><br>
+                <video id="video" width="400" height="300" autoplay></video>
+
+                <p id="faceShape"></p>
+                <p id="skinTone"></p>
+                <p id="makeup"></p>
+                <p id="hairStyle"></p>
+            </div>
+
+            <div class="card">
+                <h2>Occasion Styling</h2>
+
+                <select id="occasion">
+                    <option>Wedding</option>
+                    <option>Party</option>
+                    <option>Puja</option>
+                    <option>Interview</option>
+                    <option>College</option>
+                    <option>Workplace</option>
+                    <option>Normal</option>
+                </select>
+
+                <button onclick="suggestOccasion()">Suggest</button>
+
+                <p id="occasionResult"></p>
+            </div>
+
+            <div class="card">
+                <h2>3D Avatar Preview</h2>
+                <div id="avatar"></div>
+            </div>
+
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact">
+            <div class="card">
+                <h2>Contact</h2>
+                <p>Email: suryastyllie@email.com</p>
+            </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="profile">
+            <div class="card">
+                <h2>User Profile</h2>
+                <p id="profileData">Register to see your profile</p>
+            </div>
+        </section>
+
+        <!-- LOGIN -->
+        <section id="login">
+            <div class="card">
+                <h2>Login</h2>
+                <input id="loginUser" placeholder="Name / Phone / Email">
+                <input id="loginPass" type="password" placeholder="Password">
+                <button onclick="login()">Login</button>
+            </div>
+        </section>
+
+        <!-- REGISTER -->
+        <section id="register">
+            <div class="card">
+                <h2>Register</h2>
+
+                <input id="name" placeholder="Name">
+                <input id="email" placeholder="Email / Phone">
+                <input id="pass" type="password" placeholder="Password">
+                <select id="gender">
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+                <input id="city" placeholder="City">
+                <input id="state" placeholder="State">
+                <input id="country" placeholder="Country">
+                <input id="pin" placeholder="Pin Code">
+
+                <button onclick="register()">Register</button>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+
+        /* NAVIGATION */
+        function enterSite() {
+            document.getElementById("welcome").style.display = "none"
+            document.getElementById("site").style.display = "block"
+        }
+
+        function showPage(p) {
+            document.querySelectorAll("section").forEach(s => s.classList.remove("active"))
+            document.getElementById(p).classList.add("active")
+        }
+
+        /* REGISTER */
+        function register() {
+            let data = {
+                name: name.value,
+                email: email.value,
+                city: city.value
+            }
+            localStorage.setItem("user", JSON.stringify(data))
+            alert("Registered Successfully")
+        }
+
+        /* LOGIN */
+        function login() {
+            let user = JSON.parse(localStorage.getItem("user"))
+            if (user) {
+                document.getElementById("profileData").innerText =
+                    "Welcome " + user.name + " from " + user.city
+                showPage("profile")
+            } else {
+                alert("No user found")
+            }
+        }
+
+        /* CAMERA AI */
+        const video = document.getElementById("video")
+
+        async function startCamera() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+            video.srcObject = stream
+
+            await faceapi.nets.tinyFaceDetector.loadFromUri("https://cdn.jsdelivr.net/npm/face-api.js/models")
+            await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.jsdelivr.net/npm/face-api.js/models")
+
+            setInterval(async () => {
+                const d = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks()
+
+                if (d) {
+                    let shape = detectFaceShape(d.landmarks)
+                    document.getElementById("faceShape").innerText = "Face Shape: " + shape
+
+                    detectSkinTone()
+                    hairSuggest(shape)
+                }
+            }, 150)
+        }
+
+        /* FACE SHAPE */
+        function detectFaceShape(l) {
+            let jaw = l.getJawOutline()
+            let w = jaw[16].x - jaw[0].x
+
+            if (w > 350) return "Round"
+            if (w > 300) return "Square"
+            return "Oval"
+        }
+
+        /* HAIR */
+        function hairSuggest(s) {
+            let h = ""
+            if (s == "Oval") h = "Layer Cut / Ponytail"
+            if (s == "Round") h = "Long Layers / Side Part"
+            if (s == "Square") h = "Soft Waves / Fringe"
+            document.getElementById("hairStyle").innerText = "Hair Style: " + h
+        }
+
+        /* SKIN + MAKEUP */
+        function detectSkinTone() {
+            let tones = ["Fair", "Medium", "Wheatish", "Dark"]
+            let t = tones[Math.floor(Math.random() * 4)]
+
+            document.getElementById("skinTone").innerText = "Skin Tone: " + t
+
+            let m = ""
+            if (t == "Fair") m = "Soft Pink Makeup"
+            if (t == "Medium") m = "Coral Makeup"
+            if (t == "Wheatish") m = "Bronze Makeup"
+            if (t == "Dark") m = "Bold Red Makeup"
+
+            document.getElementById("makeup").innerText = "Makeup: " + m
+        }
+
+        /* OCCASION */
+        function suggestOccasion() {
+            let o = document.getElementById("occasion").value
+            let r = ""
+
+            if (o == "Wedding") r = "Heavy Makeup + Elegant Bun"
+            if (o == "Party") r = "Stylish Hair + Glossy Makeup"
+            if (o == "Puja") r = "Traditional Look"
+            if (o == "Interview") r = "Simple & Professional"
+            if (o == "College") r = "Casual Style"
+            if (o == "Workplace") r = "Formal Style"
+            if (o == "Normal") r = "Natural Look"
+
+            document.getElementById("occasionResult").innerText = r
+        }
+
+        /* 3D AVATAR */
+        let scene = new THREE.Scene()
+        let camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
+        let renderer = new THREE.WebGLRenderer()
+        renderer.setSize(400, 400)
+        document.getElementById("avatar").appendChild(renderer.domElement)
+
+        let geo = new THREE.SphereGeometry(2, 32, 32)
+        let mat = new THREE.MeshBasicMaterial({ color: 0xffccaa })
+        let face = new THREE.Mesh(geo, mat)
+        scene.add(face)
+
+        camera.position.z = 5
+
+        function animate() {
+            requestAnimationFrame(animate)
+            face.rotation.y += 0.01
+            renderer.render(scene, camera)
+        }
+        animate()
+
+    </script>
+
+</body>
+
+</html>
